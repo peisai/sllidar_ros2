@@ -73,10 +73,16 @@ def generate_launch_description():
                          'scan_mode': scan_mode}],
             output='screen'),
 
+        #Node(
+           #package='sllidar_ros2',
+           #executable='pointcloudfilter',
+           #name='point_cloud_filter',
+           #output='screen'),
+
         Node(
            package='sllidar_ros2',
-           executable='pointcloudfilter',
-           name='point_cloud_filter',
+           executable='perception_obstacle',
+           name='perception_obstacle',
            output='screen'),
 
         Node(

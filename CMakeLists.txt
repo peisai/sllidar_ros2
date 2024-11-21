@@ -89,6 +89,18 @@ target_link_libraries(pointcloudfilter
   ${visualization_msgs_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+
+add_executable(perception_obstacle src/perception_obstacle.cpp)
+# Link libraries
+target_link_libraries(perception_obstacle
+  ${rclcpp_LIBRARIES}
+  ${sensor_msgs_LIBRARIES}
+  ${geometry_msgs_LIBRARIES}
+  ${visualization_msgs_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
+
 ament_target_dependencies(pointcloudfilter
   rclcpp
   sensor_msgs
@@ -96,8 +108,15 @@ ament_target_dependencies(pointcloudfilter
   visualization_msgs
 )
 
+ament_target_dependencies(perception_obstacle
+  rclcpp
+  sensor_msgs
+  geometry_msgs
+  visualization_msgs
+)
 # OpenCVのリンクを追加
 target_link_libraries(pointcloudfilter ${OpenCV_LIBS})
+target_link_libraries(perception_obstacle ${OpenCV_LIBS})
 
 ################################################################################
 # Install
@@ -107,7 +126,7 @@ install(DIRECTORY launch rviz
 )
 
 install(
-  TARGETS sllidar_node sllidar_client pointcloudfilter
+  TARGETS sllidar_node sllidar_client pointcloudfilter perception_obstacle
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -119,4 +138,3 @@ ament_export_dependencies(std_msgs)
 ament_export_dependencies(sensor_msgs)
 ament_export_include_directories(include)
 ament_package()
-

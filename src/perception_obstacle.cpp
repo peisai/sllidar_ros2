@@ -13,7 +13,7 @@
 class PointCloudFilter : public rclcpp::Node
 {
 public:
-    PointCloudFilter() : Node("point_cloud_filter")
+    PointCloudFilter() : Node("perception_obstacle")
     {
         subscription_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
             "/scan", 10, std::bind(&PointCloudFilter::filter_callback, this, std::placeholders::_1));
@@ -44,6 +44,9 @@ private:
         float center_x = 0.0;
         float center_y = 0.0;
 
+        // 障害物検出フラグを初期化
+        bool obstacle_detected = false;
+
         // フィルタリング処理と最も近い点の検索
         for (size_t i = 0; i < msg->ranges.size(); ++i)
         {
@@ -59,12 +62,20 @@ private:
                 {
                     filtered_msg.ranges[i] = std::numeric_limits<float>::infinity(); // フィルタリング
                 }
-                else if (distance < closest_distance)
+                else
                 {
+                    if (angle >= forward_angle_min_ && angle <= forward_angle_max_)
+                    {
+                    	obstacle_detected = true;
+                    }
+                    
+                    if (distance < closest_distance)
+                    {
                     closest_distance = distance;
                     closest_x = x;
                     closest_y = y;
-                    closest_angle = angle;
+                    //closest_angle = angle;
+                    }
                 }
             }
             else
@@ -73,17 +84,14 @@ private:
             }
         }
 
-        // 障害物検出フラグを初期化
-        bool obstacle_detected = false;
-
         // 最も近い点が見つかったかどうかをチェック
         if (closest_distance != std::numeric_limits<float>::infinity())
         {
             // 最も近い点が前方90度（±45度）内にあるかを確認
-            if (closest_angle >= forward_angle_min_ && closest_angle <= forward_angle_max_)
-            {
-                obstacle_detected = true;
-            }
+            //if (closest_angle >= forward_angle_min_ && closest_angle <= forward_angle_max_)
+            //{
+                //obstacle_detected = true;
+            //}
 
             // 最も近い点のマーカーを生成
             visualization_msgs::msg::Marker closest_point_marker;
